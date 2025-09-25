@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion</title>
+    <link rel="stylesheet" href="../page-css/login.css">
+</head>
+
+<body>
+    <main class="login-wrapper">
+        <form id="login-form" class="login-card" autocomplete="off">
+            <div class="header">
+                <h1>Bienvenue</h1>
+                <p class="subtitle">
+            </div>
+
+            <div class="form-group">
+                <label for="username">Identifiant</label>
+                <div class="input-wrapper">
+                    <input id="username" name="username" type="text" placeholder="Votre identifiant" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <div class="password-field">
+                    <input id="password" name="password" type="password" placeholder="Mot de passe" required>
+                    <button type="button" id="toggle-password" aria-label="Afficher le mot de passe">👁️</button>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="btn primary">Se connecter</button>
+                <button type="button" id="fill-demo" class="btn ghost">Compte démo</button>
+            </div>
+
+            <p id="error" class="error" role="alert" aria-live="polite"></p>
+        </form>
+    </main>
+
+    <script src="../page-js/login.js"></script>
+</body>
+
+</html>
