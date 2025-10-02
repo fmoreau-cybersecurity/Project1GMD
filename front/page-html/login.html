@@ -2,45 +2,90 @@
 <html lang="fr">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion</title>
-    <link rel="stylesheet" href="../page-css/login.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Connexion / Inscription</title>
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../page-css/login.css">
 </head>
 
 <body>
-    <main class="login-wrapper">
-        <form id="login-form" class="login-card" autocomplete="off">
-            <div class="header">
-                <h1>Bienvenue</h1>
-                <p class="subtitle">
-            </div>
+  <main>
+    <div class="login-card">
+      <!-- Form Connexion -->
+      <form id="login-form" autocomplete="off">
+        <h3 class="text-center mb-4">🔑 Connexion</h3>
 
-            <div class="form-group">
-                <label for="username">Identifiant</label>
-                <div class="input-wrapper">
-                    <input id="username" name="username" type="text" placeholder="Votre identifiant" required>
-                </div>
-            </div>
+        <div class="mb-3">
+          <label for="username" class="form-label">Identifiant</label>
+          <input type="text" class="form-control" id="username" name="username" required>
+        </div>
 
-            <div class="form-group">
-                <label for="password">Mot de passe</label>
-                <div class="password-field">
-                    <input id="password" name="password" type="password" placeholder="Mot de passe" required>
-                    <button type="button" id="toggle-password" aria-label="Afficher le mot de passe">👁️</button>
-                </div>
-            </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Mot de passe</label>
+          <div class="input-group">
+            <input type="password" class="form-control" id="password" name="password" required>
+            <button class="btn btn-outline-secondary" type="button" id="toggle-password">👁️</button>
+          </div>
+        </div>
 
-            <div class="actions">
-                <button type="submit" class="btn primary">Se connecter</button>
-                <button type="button" id="fill-demo" class="btn ghost">Compte démo</button>
-            </div>
+        <div class="d-grid gap-2">
+          <button type="submit" class="btn btn-primary">Se connecter</button>
+          <button type="button" id="fill-demo" class="btn btn-outline-secondary">Compte démo</button>
+        </div>
 
-            <p id="error" class="error" role="alert" aria-live="polite"></p>
-        </form>
-    </main>
+        <p id="error" class="error mt-3"></p>
 
-    <script src="../page-js/login.js"></script>
+        <div class="text-center mt-3">
+          <button type="button" id="show-register" class="btn btn-link">Créer un compte</button>
+        </div>
+      </form>
+
+      <!-- Form Inscription -->
+      <form id="register-form" class="d-none" autocomplete="off">
+        <h3 class="text-center mb-4">📝 Inscription</h3>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Nom</label>
+            <input type="text" class="form-control" id="nom">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Prénom</label>
+            <input type="text" class="form-control" id="prenom">
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" id="mail">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Identifiant</label>
+          <input type="text" class="form-control" id="reg-login">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Mot de passe</label>
+          <input type="password" class="form-control" id="reg-password">
+        </div>
+
+        <div class="d-grid gap-2">
+          <button type="submit" class="btn btn-success">Créer mon compte</button>
+        </div>
+
+        <p id="reg-error" class="error mt-3"></p>
+
+        <div class="text-center mt-3">
+          <button type="button" id="show-login" class="btn btn-link">Déjà un compte ? Connexion</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script src="../page-js/login.js"></script>
 </body>
 
 </html>

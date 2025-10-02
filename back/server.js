@@ -1,29 +1,103 @@
-require ('dotenv').config(); //chargement des variables
-
+require('dotenv').config();
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
+const bcrypt = require("bcrypt"); // pour sécuriser les mots de passe
 
 const app = express();
 const PORT = process.env.PORT || 2864;
-const HOST = process.env.DB_HOST || '172.29.19.53';
 
+// Middleware
 app.use(express.json());
 app.use(cors());
 
-//Connexion à la base de données : 
-const bddConection = mysql.createPool({
-  host : process.env.DB_HOST,
-  user : process.env.DB_USER,
-  password : process.env.DB_PASSWORD,
-  database : process.env.DB_NAME
+// Connexion MySQL
+const bddConnexion = mysql.createPool({
+  host: process.env.DB_HOST || "172.29.19.53",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "root",
+  database: process.env.DB_NAME || "Lawrence GMD"
 }).promise();
 
-//Route pour récupérer les utilisateurs
- 
-//test
+
+// REGISTER
+app.post("/register", async (req, res) => {
+  const { nom, prenom, mail, login, password } = req.body;
+
+  if (!nom || !prenom || !mail || !login || !password) {
+    return res.status(400).json({ error: "Tous les champs sont requis." });
+  }
+
+  try {
+    // Vérifie si le login existe déjà
+    const [rows] = await bddConnexion.query("SELECT * FROM User WHERE Login = ?", [login]);
+    if (rows.length > 0) {
+      return res.status(400).json({ error: "Identifiant déjà pris." });
+    }
+
+    // Hash du mot de passe
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Insérer en base
+    await db.query(
+      "INSERT INTO User (`Nom`, `Prénom`, `Mail`, `Login`, `Password`, `Admin`) VALUES (?, ?, ?, ?, ?, 0)",
+      [nom, prenom, mail, login, hashedPassword]
+    );
 
 
+    return res.json({ message: "Utilisateur créé avec succès." });
+  } catch (err) {
+    console.error("Erreur register:", err);
+    return res.status(500).json({ error: "Erreur serveur." });
+  }
+});
+
+
+// ==========================
+// LOGIN
+// ==========================
+app.post("/login", async (req, res) => {
+  const { login, password } = req.body;
+
+  if (!login || !password) {
+    return res.status(400).json({ error: "Identifiant et mot de passe requis." });
+  }
+
+  try {
+    // Vérifie si l'utilisateur existe
+    const [rows] = await bddConnexion.query("SELECT * FROM User WHERE Login = ?", [login]);
+    if (rows.length === 0) {
+      return res.status(401).json({ error: "Identifiant ou mot de passe incorrect." });
+    }
+
+    const user = rows[0];
+
+    // Vérifie le mot de passe
+    const valid = await bcrypt.compare(password, user.Password);
+    if (!valid) {
+      return res.status(401).json({ error: "Identifiant ou mot de passe incorrect." });
+    }
+
+    // Réponse au front (sans renvoyer le mot de passe évidemment)
+    return res.json({
+      user: {
+        login: user.Login,
+        nom: user.Nom,
+        prenom: user["Prénom"],
+        mail: user.Mail,
+        admin: user.Admin
+      }
+    });
+  } catch (err) {
+    console.error("Erreur login:", err);
+    return res.status(500).json({ error: "Erreur serveur." });
+  }
+});
+
+
+// ==========================
+// Lancer serveur
+// ==========================
 app.listen(PORT, () => {
-  console.log(`Serveur démarré sur http://localhost:${PORT}`);
+  console.log(`🚀 Serveur démarré sur http://172.29.19.53:${PORT}`);
 });
