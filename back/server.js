@@ -13,14 +13,16 @@ app.use(cors());
 
 // Connexion MySQL
 const bddConnexion = mysql.createPool({
-  host: process.env.DB_HOST || "172.29.19.53",
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD || "root",
+  host: process.env.DB_HOST || "127.0.0.1",
+  user: process.env.DB_USER || "LAWGMD",
+  password: process.env.DB_PASSWORD || "W_IpFpY40n-dSZJQ",
   database: process.env.DB_NAME || "Lawrence GMD"
 }).promise();
 
 
+// ==========================
 // REGISTER
+// ==========================
 app.post("/register", async (req, res) => {
   const { nom, prenom, mail, login, password } = req.body;
 
@@ -30,7 +32,10 @@ app.post("/register", async (req, res) => {
 
   try {
     // Vérifie si le login existe déjà
-    const [rows] = await bddConnexion.query("SELECT * FROM User WHERE Login = ?", [login]);
+    const [rows] = await bddConnexion.query(
+      "SELECT * FROM `User` WHERE `Login` = ?",
+      [login]
+    );
     if (rows.length > 0) {
       return res.status(400).json({ error: "Identifiant déjà pris." });
     }
@@ -39,11 +44,10 @@ app.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Insérer en base
-    await db.query(
-      "INSERT INTO User (`Nom`, `Prénom`, `Mail`, `Login`, `Password`, `Admin`) VALUES (?, ?, ?, ?, ?, 0)",
+    await bddConnexion.query(
+      "INSERT INTO `User` (`Nom`, `Prénom`, `Mail`, `Login`, `Password`, `Admin`) VALUES (?, ?, ?, ?, ?, 0)",
       [nom, prenom, mail, login, hashedPassword]
     );
-
 
     return res.json({ message: "Utilisateur créé avec succès." });
   } catch (err) {
@@ -65,7 +69,10 @@ app.post("/login", async (req, res) => {
 
   try {
     // Vérifie si l'utilisateur existe
-    const [rows] = await bddConnexion.query("SELECT * FROM User WHERE Login = ?", [login]);
+    const [rows] = await bddConnexion.query(
+      "SELECT * FROM `User` WHERE `Login` = ?",
+      [login]
+    );
     if (rows.length === 0) {
       return res.status(401).json({ error: "Identifiant ou mot de passe incorrect." });
     }
@@ -78,7 +85,7 @@ app.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Identifiant ou mot de passe incorrect." });
     }
 
-    // Réponse au front (sans renvoyer le mot de passe évidemment)
+    // Réponse au front (sans renvoyer le mot de passe)
     return res.json({
       user: {
         login: user.Login,
