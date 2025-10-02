@@ -32,12 +32,21 @@ app.post("/register", async (req, res) => {
 
   try {
     // Vérifie si le login existe déjà
-    const [rows] = await bddConnexion.query(
+    const [loginRows] = await bddConnexion.query(
       "SELECT * FROM `User` WHERE `Login` = ?",
       [login]
     );
-    if (rows.length > 0) {
+    if (loginRows.length > 0) {
       return res.status(400).json({ error: "Identifiant déjà pris." });
+    }
+
+    // Vérifie si le mail existe déjà
+    const [mailRows] = await bddConnexion.query(
+      "SELECT * FROM `User` WHERE `Mail` = ?",
+      [mail]
+    );
+    if (mailRows.length > 0) {
+      return res.status(400).json({ error: "Adresse e-mail déjà utilisée." });
     }
 
     // Hash du mot de passe
@@ -55,6 +64,7 @@ app.post("/register", async (req, res) => {
     return res.status(500).json({ error: "Erreur serveur." });
   }
 });
+
 
 
 // ==========================
