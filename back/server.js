@@ -61,6 +61,17 @@ app.post("/register", async (req, res) => {
     return res.json({ message: "Utilisateur créé avec succès." });
   } catch (err) {
     console.error("Erreur register:", err);
+
+    // Gestion spécifique des doublons MySQL
+    if (err.code === "ER_DUP_ENTRY") {
+      if (err.sqlMessage.includes("Mail")) {
+        return res.status(400).json({ error: "Adresse e-mail déjà utilisée." });
+      }
+      if (err.sqlMessage.includes("Login")) {
+        return res.status(400).json({ error: "Identifiant déjà pris." });
+      }
+    }
+
     return res.status(500).json({ error: "Erreur serveur." });
   }
 });

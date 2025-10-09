@@ -1,6 +1,5 @@
 // login.js
 (function () {
-  const DEMO_USER = { username: 'demo', password: 'demo123' };
   const SESSION_KEY = 'ptp1_session';
 
   function showError(id, msg) {
@@ -21,13 +20,6 @@
     }
   });
 
-  // Remplir compte démo
-  document.addEventListener('click', (e) => {
-    if (e.target && e.target.id === 'fill-demo') {
-      document.getElementById('username').value = DEMO_USER.username;
-      document.getElementById('password').value = DEMO_USER.password;
-    }
-  });
 
   // Switch login/register
   document.getElementById('show-register').addEventListener('click', () => {
@@ -50,12 +42,6 @@
 
       if (!username || !password) {
         return showError('error', 'Veuillez remplir tous les champs.');
-      }
-
-      // Mode démo
-      if (username === DEMO_USER.username && password === DEMO_USER.password) {
-        setSession(username);
-        return window.location.href = "../index.html";
       }
 
       try {
