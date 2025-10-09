@@ -55,7 +55,7 @@
 
         if (response.ok) {
           localStorage.setItem("user", JSON.stringify(data.user));
-          window.location.href = "../index.html";
+          window.location.href = "../page-html/connexion.html";
         } else {
           showError('error', data.error);
         }
