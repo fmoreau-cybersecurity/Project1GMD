@@ -23,5 +23,65 @@
 
   <!-- Script confettis -->
   <script src="../page-js/confetti.js"></script>
+
+<script>
+        const AUTH_TOKEN_KEY = 'authToken'; 
+        const SERVER_URL = "http://172.29.18.249:2864";
+
+        const checkUserStatus = async () => {
+            const token = localStorage.getItem(AUTH_TOKEN_KEY);
+            const statusEl = document.getElementById('status-message');
+
+            // 1. Si pas de token, on redirige immédiatement (cas de la navigation privée)
+            if (!token) {
+                statusEl.textContent = "❌ Session expirée ou non démarrée. Redirection vers le login.";
+                setTimeout(() => {
+                    window.location.href = "../index.html"; // Redirigez vers votre page de login
+                }, 1000);
+                return;
+            }
+
+            try {
+                // 2. Vérification du token auprès du back-end
+                const response = await fetch(`${SERVER_URL}/api/user-status`, {
+                    method: "GET",
+                    headers: {
+                        'Authorization': `Bearer ${token}` 
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Token valide, afficher les infos
+                    statusEl.textContent = `✅ Session Validée. Bienvenue, utilisateur ${data.userId} !`;
+                } else {
+                    // 3. Token invalide/expiré (401/403), on déconnecte
+                    statusEl.textContent = `❌ Authentification échouée: ${data.error}. Déconnexion.`;
+                    localStorage.removeItem(AUTH_TOKEN_KEY);
+                    setTimeout(() => {
+                        window.location.href = "../index.html";
+                    }, 1000);
+                }
+            } catch (error) {
+                statusEl.textContent = "⚠️ Erreur de connexion au serveur. Déconnexion par sécurité.";
+                console.error("Erreur Fetch:", error);
+                localStorage.removeItem(AUTH_TOKEN_KEY);
+                setTimeout(() => {
+                    window.location.href = "../index.html";
+                }, 1000);
+            }
+        };
+
+        const logout = () => {
+            localStorage.removeItem(AUTH_TOKEN_KEY);
+            localStorage.removeItem("user");
+            window.location.href = "../index.html";
+        };
+
+        // Lancer la vérification au chargement de la page
+        checkUserStatus();
+    </script>
+
 </body>
 </html>
