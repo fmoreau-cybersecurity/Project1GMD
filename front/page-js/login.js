@@ -2,6 +2,7 @@
 (function () {
   // Clé pour stocker le jeton d'authentification
   const AUTH_TOKEN_KEY = 'authToken'; 
+  const SERVER_URL = "http://172.29.18.249:2864";
 
   function showError(id, msg) {
     const el = document.getElementById(id);
@@ -28,6 +29,36 @@
     document.getElementById('login-form').classList.remove('d-none');
   });
 
+  // Fonction pour TESTER l'envoi du token au back-end
+  const testTokenValidity = async (token) => {
+    try {
+      console.log("Tentative de validation du token sur la route protégée...");
+      
+      const response = await fetch(`${SERVER_URL}/api/user-status`, {
+        method: "GET",
+        headers: {
+          'Content-Type': 'application/json',
+          // ENVOI DU TOKEN DANS L'EN-TÊTE 'Authorization'
+          'Authorization': `Bearer ${token}` 
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("✅ Le token est valide ! Réponse du serveur:", data);
+        return true;
+      } else {
+        console.error(`❌ ÉCHEC DE LA VÉRIFICATION DU TOKEN (${response.status}):`, data.error || 'Erreur inconnue.');
+        return false;
+      }
+    } catch (error) {
+      console.error("Erreur de connexion lors du test du token:", error);
+      return false;
+    }
+  };
+
+
   // Login form submit
   document.addEventListener('submit', async (e) => {
     if (e.target && e.target.id === 'login-form') {
@@ -41,8 +72,8 @@
       }
 
       try {
-        // Envoi des identifiants au back-end
-        const response = await fetch("http://172.29.18.249:2864/login", {
+        // Étape 1 : Envoi des identifiants au back-end (pour obtenir le token)
+        const response = await fetch(`${SERVER_URL}/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ login: username, password })
@@ -53,20 +84,24 @@
         if (response.ok) {
           
           if (data.token) {
-            // 1. Stocke le jeton d'authentification reçu du serveur
+            // Étape 2 : Stockage du token
             localStorage.setItem(AUTH_TOKEN_KEY, data.token);
+            localStorage.setItem("user", JSON.stringify(data.user));
+
+            // Étape 3 : TEST IMMÉDIAT DU TOKEN (Nouveau)
+            const tokenValid = await testTokenValidity(data.token);
+
+            if (tokenValid) {
+              // Étape 4 : Redirection uniquement si le token est validé
+              window.location.href = "../page-html/connexion.html";
+            } else {
+              showError('error', "Connexion échouée malgré la réception du token. Veuillez vérifier le back-end.");
+              localStorage.removeItem(AUTH_TOKEN_KEY); // Nettoyer le token défectueux
+            }
           } else {
             console.error("Connexion réussie mais token manquant dans la réponse.");
+            showError('error', "Le serveur n'a pas renvoyé de jeton.");
           }
-          
-          // 2. Stocke les informations utilisateur
-          if (data.user) {
-            localStorage.setItem("user", JSON.stringify(data.user));
-          }
-          
-          // 3. Redirection
-          window.location.href = "../page-html/connexion.html";
-          
         } else {
           showError('error', data.error);
         }
@@ -74,7 +109,7 @@
         showError('error', "Erreur de connexion au serveur. Vérifiez l'adresse ou le statut du serveur.");
       }
     }
-
+    
     // Register form submit
     if (e.target && e.target.id === 'register-form') {
       e.preventDefault();
